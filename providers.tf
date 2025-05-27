@@ -1,33 +1,31 @@
 
 #Terraform block
 terraform {
-    required_version = ">= 1.7.0"
-    required_providers {
-        aws = {
-            source  = "hashicorp/aws"
-            version = "~> 5.0"
-        }
-        # Random provider for generating random values
-        # This is useful for creating unique names or passwords.
-        random = {
-            source  = "hashicorp/random"
-            version = "~> 3.0"
-        }
+  required_version = ">= 1.7.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
     }
+    # Random provider for generating random values
+    # This is useful for creating unique names or passwords.
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
+  }
+  # Backend configuration for Terraform state
+  # This configuration uses an S3 bucket to store the Terraform state file.
+  # The S3 bucket must be created before using it as a backend.
+  # The bucket name, key, and region must be specified.
+  backend "s3" {
+    bucket = "bucket-bucket-lucket"
+    key    = "state.tfstate"
+    region = "us-east-1" # Specify the AWS region where the S3 bucket is located, does not have to be the same as the provider region.
+  }
 }
-#Resource block
-
-# Random id resource to generate a unique suffix for the S3 bucket name because S3 bucket names must be globally unique.
-resource "random_id" "bucket_suffix" {
-  byte_length = 6  
-}
-
-# Create an S3 bucket with a unique name using the random_id resource
-resource "aws_s3_bucket" "example_bucket" {
-  bucket = "example-bucket-${random_id.bucket_suffix.hex}" # Using random_id to create a unique bucket name 
-}
-
-# Shows the output of the S3 bucket name
-output "bucket_name" {
-  value = aws_s3_bucket.example_bucket.bucket # Output the ID of the created S3 bucket
+# Provider configuration for AWS
+## This specifies the AWS region where resources will be created.
+provider "aws" {
+  region = "us-east-1"
 }
